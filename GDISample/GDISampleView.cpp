@@ -35,6 +35,7 @@ BEGIN_MESSAGE_MAP(CGDISampleView, CView)
 	ON_COMMAND(ID_MENUITEM_PEN, &CGDISampleView::OnMenuitemPen)
 	ON_COMMAND(ID_MENUITEM_BRUSH, &CGDISampleView::OnMenuitemBrush)
 	ON_COMMAND(ID_MENUITEM_BITMAPBRUSH, &CGDISampleView::OnMenuitemBitmapbrush)
+	ON_COMMAND(ID_MENUITEM_SAVESCREENTOFILE, &CGDISampleView::OnMenuitemSavescreentofile)
 END_MESSAGE_MAP()
 
 // CGDISampleView 构造/析构
@@ -199,4 +200,58 @@ void CGDISampleView::OnMenuitemBitmapbrush()
 		pDC->FillRect(&rect, &newBrush);
 	else
 		MessageBox(L"创建位图画刷失败！");
+}
+
+
+int   GetEncoderClsid(const   WCHAR*   format, CLSID*   pClsid)
+{
+	UINT num = 0;
+	UINT size = 0;
+	ImageCodecInfo* pImageCodecInfo = NULL;
+	GetImageEncodersSize(&num, &size);
+	if (size == 0)   return   -1;
+	pImageCodecInfo = (ImageCodecInfo*)(malloc(size));
+	if (pImageCodecInfo == NULL)   return -1;
+	GetImageEncoders(num, size, pImageCodecInfo);
+	for (UINT j = 0; j < num; ++j)
+	{
+		if (wcscmp(pImageCodecInfo[j].MimeType, format) == 0)
+		{
+			*pClsid = pImageCodecInfo[j].Clsid;
+			free(pImageCodecInfo);
+			return   j;
+		}
+	}
+	free(pImageCodecInfo);
+	return   -1;
+}
+
+void CGDISampleView::OnMenuitemSavescreentofile()
+{
+	// TODO: 在此添加命令处理程序代码
+	int cx = GetSystemMetrics(SM_CXSCREEN);		//获取屏幕分辨率
+	int cy = GetSystemMetrics(SM_CYSCREEN);
+	//创建显示屏上下文
+	HDC hScrDC = CreateDC(L"DISPLAY", NULL, NULL, NULL);
+	Graphics graphics1(hScrDC);
+	Bitmap bitmap(cx, cy, &graphics1);
+	Graphics graphics2(&bitmap);
+	HDC dc1 = graphics1.GetHDC();
+	HDC dc2 = graphics2.GetHDC();	//获取设备上下文
+	BitBlt(dc2, 0, 0, cx, cy, dc1, 0, 0, 13369376);	//获取位图
+	graphics1.ReleaseHDC(dc1);
+	graphics2.ReleaseHDC(dc2);	//释放设备上下文句柄
+	CLSID clsid;
+	char propertyValue[] = "屏幕截图";
+	PropertyItem* propertyItem = new PropertyItem;	//创建属性页
+	//将抓到的图像保存到jpg文件
+	GetEncoderClsid(L"image/jpeg", &clsid);
+	propertyItem->id = PropertyTagImageTitle;
+	propertyItem->length = 16;
+	propertyItem->type = PropertyTagTypeASCII;
+	propertyItem->value = propertyValue;
+	bitmap.SetPropertyItem(propertyItem);
+	bitmap.Save(L"screen1.jpg", &clsid, NULL);
+	CDC* pDC = GetDC();
+	pDC->TextOutW(10,10,L"保存屏幕抓图到screen1.jpg");
 }

@@ -46,6 +46,7 @@ public:
 	afx_msg void OnMenuitemPen();
 	afx_msg void OnMenuitemBrush();
 	afx_msg void OnMenuitemBitmapbrush();
+	afx_msg void OnMenuitemSavescreentofile();
 };
 
 #ifndef _DEBUG  // GDISampleView.cpp 中的调试版本
