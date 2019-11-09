@@ -50,6 +50,10 @@ public:
 	afx_msg void OnMenuitemMemdc();
 	afx_msg void OnMenuitemGeometricpen();
 	afx_msg void OnMenuitemCrossline();
+	afx_msg void OnMenuitemFundraw();
+	afx_msg void OnMenuitemMultibrush();
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
+	afx_msg void OnMenuitemClock();
 };
 
 #ifndef _DEBUG  // GDISampleView.cpp 中的调试版本

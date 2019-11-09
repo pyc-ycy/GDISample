@@ -12,8 +12,11 @@
 #include "GDISampleDoc.h"
 #include "GDISampleView.h"
 #include "DlgEllip.h"
-//#include <gdiplus.h>
+#include <gdiplusheaders.h>
+#include <gdiplusbase.h>
 #include <gdipluscolor.h>
+#include <math.h>
+#pragma comment(lib, "gdiplus.lib")
 using namespace Gdiplus;
 
 
@@ -40,6 +43,10 @@ BEGIN_MESSAGE_MAP(CGDISampleView, CView)
 	ON_COMMAND(ID_MENUITEM_MEMDC, &CGDISampleView::OnMenuitemMemdc)
 	ON_COMMAND(ID_MENUITEM_GEOMETRICPEN, &CGDISampleView::OnMenuitemGeometricpen)
 	ON_COMMAND(ID_MENUITEM_CROSSLINE, &CGDISampleView::OnMenuitemCrossline)
+	ON_COMMAND(ID_MENUITEM_FUNDRAW, &CGDISampleView::OnMenuitemFundraw)
+	ON_COMMAND(ID_MENUITEM_MULTIBRUSH, &CGDISampleView::OnMenuitemMultibrush)
+	ON_WM_TIMER()
+	ON_COMMAND(ID_MENUITEM_CLOCK, &CGDISampleView::OnMenuitemClock)
 END_MESSAGE_MAP()
 
 // CGDISampleView 构造/析构
@@ -355,4 +362,159 @@ void CGDISampleView::OnMenuitemCrossline()
 	{
 		MessageBox(L"网格绘制失败",L"提示");
 	}
+}
+
+
+void CGDISampleView::OnMenuitemFundraw()
+{
+	// TODO: 在此添加命令处理程序代码
+	CDC* pDC = GetDC();
+	CPen newPen;
+	if (newPen.CreatePen(PS_SOLID, 2, RGB(125, 125, 125)))
+	{
+		const int HC = 9;
+		const int VC = 9;
+		CPen* pOldPen = pDC->SelectObject(&newPen);
+		CRect rect;
+		GetClientRect(&rect);
+		int dx = rect.Width() / (HC - 1);
+		int dy = rect.Height() / (VC - 1);
+		CPoint(*Point)[VC] = new CPoint[HC][VC];
+		for (int i = 0; i < HC; i++)
+		{
+			for (int j = 0; j < VC; j++)
+			{
+				Point[i][j].x = i * dx;
+				Point[i][j].y = j * dy;
+			}
+		}
+		pDC->MoveTo(rect.left, rect.bottom);
+		for (int i = 0; i < HC; i++)
+		{
+			for (int j = 0; j < VC; j++)
+			{
+				pDC->LineTo(Point[i][j].x, Point[i][j].y);
+				pDC->MoveTo(Point[i][j].x, Point[i][j].y);
+			}
+		}
+		pDC->SelectObject(pOldPen);
+	}
+	else
+	{
+		MessageBox(L"网格绘制失败", L"提示");
+	}
+}
+
+
+void CGDISampleView::OnMenuitemMultibrush()
+{
+	// TODO: 在此添加命令处理程序代码
+	CDC* pDC = GetDC();
+	CBrush newBrush;
+	newBrush.CreateSolidBrush(RGB(255, 255, 0));
+	CRect rect;
+	GetClientRect(&rect);
+	int width = rect.Width()/4;
+	rect.right = width;
+	pDC->FillRect(&rect, &newBrush);
+	::DeleteObject((HGDIOBJ)newBrush);
+	CBrush newBrush1;
+	newBrush1.CreateHatchBrush(HS_CROSS, RGB(0, 255, 255));
+	rect.left += width;
+	rect.right += width;
+	pDC->FillRect(&rect, &newBrush1);
+	::DeleteObject((HGDIOBJ)newBrush1);
+	LOGBRUSH logBrush;
+	logBrush.lbColor = RGB(255, 0, 255);
+	logBrush.lbHatch = HS_HORIZONTAL;
+	logBrush.lbStyle = BS_HATCHED;
+
+	CBrush newBrush2;
+	newBrush2.CreateBrushIndirect(&logBrush);
+	rect.left += width;
+	rect.right += width;
+	pDC->FillRect(&rect, &newBrush2);
+	::DeleteObject((HGDIOBJ)newBrush2);
+
+	CBrush newBrush3;
+	newBrush3.CreateSysColorBrush(HS_VERTICAL);
+	rect.left += width;
+	rect.right += width;
+	pDC->FillRect(&rect, &newBrush3);
+	::DeleteObject((HGDIOBJ)newBrush3);
+}
+
+void CGDISampleView::OnTimer(UINT_PTR nIDEvent)
+{
+	if (nIDEvent == 200)
+	{
+		//绘制钟表盘
+		Graphics graphics(m_hWnd);
+		int width = 300;
+		int height = 300;
+		Rect outRect(0, 0, width, height);
+		Rect midRect(6, 6, 288, 288);
+		Rect inRect(9, 9, 282, 282);
+
+		LinearGradientBrush outBrush(outRect, Color(0, 125, 0), Color(0, 255, 0), LinearGradientModeBackwardDiagonal);
+		LinearGradientBrush midBrush(midRect, Color(0, 255, 0), Color(0, 125, 0), LinearGradientModeBackwardDiagonal);
+		LinearGradientBrush inBrush(inRect, Color(0, 125, 0), Color(0, 255, 0), LinearGradientModeBackwardDiagonal);
+
+		graphics.FillEllipse(&outBrush, outRect);
+		graphics.FillEllipse(&midBrush, midRect);
+		graphics.FillEllipse(&inBrush, inRect);
+
+		//绘制刻度	
+		FontFamily fontFamily(L"Arial");
+		Gdiplus::Font font(&fontFamily, 20, FontStyleBold);
+		SolidBrush whiteBrush(Color(255, 255, 255, 255));
+		graphics.DrawString(L"12", -1, &font, PointF(130, 10), &whiteBrush);
+		graphics.DrawString(L"6", -1, &font, PointF(140, 265), &whiteBrush);
+		graphics.DrawString(L"3", -1, &font, PointF(270, 140), &whiteBrush);
+		graphics.DrawString(L"9", -1, &font, PointF(10, 140), &whiteBrush);
+		graphics.DrawString(L"1", -1, &font, PointF(200, 30), &whiteBrush);
+		graphics.DrawString(L"2", -1, &font, PointF(250, 80), &whiteBrush);
+		graphics.DrawString(L"5", -1, &font, PointF(205, 245), &whiteBrush);
+		graphics.DrawString(L"4", -1, &font, PointF(250, 200), &whiteBrush);
+		graphics.DrawString(L"11", -1, &font, PointF(65, 30), &whiteBrush);
+		graphics.DrawString(L"10", -1, &font, PointF(20, 80), &whiteBrush);
+		graphics.DrawString(L"7", -1, &font, PointF(65, 245), &whiteBrush);
+		graphics.DrawString(L"8", -1, &font, PointF(25, 200), &whiteBrush);
+
+		//绘制指针 
+		graphics.TranslateTransform(150, 150, MatrixOrderAppend);
+		Pen hourPen(Color(255, 0, 255, 0), 7); //时针
+		hourPen.SetLineCap(LineCapRoundAnchor, LineCapArrowAnchor, DashCapFlat);
+		Pen minutePen(Color(255, 0, 0, 255), 4); //分针
+		minutePen.SetLineCap(LineCapRoundAnchor, LineCapArrowAnchor, DashCapFlat);
+		Pen secondPen(Color(255, 255, 0, 0), 2); //秒针
+
+		CTime time = CTime::GetCurrentTime();
+		int sec = time.GetSecond();
+		int min = time.GetMinute();
+		int hour = time.GetHour();
+
+		const double pi = 3.1415926;
+		double secondAngle = 2.0 * pi * sec / 60.0;
+		double minuteAngle = 2.0 * pi * (min + sec / 60.0) / 60.0;
+		double hourAngle = 2.0 * pi * (hour + min / 60.0) / 12.0;
+
+		Point centre(0, 0);
+
+		Point hourHand((int)(40 * sin(hourAngle)), (int)(-40 * cos(hourAngle)));
+		graphics.DrawLine(&hourPen, centre, hourHand);
+
+		Point minHand((int)(80 * sin(minuteAngle)), (int)(-80 * cos(minuteAngle)));
+		graphics.DrawLine(&minutePen, centre, minHand);
+
+		Point secHand((int)(80 * sin(secondAngle)), (int)(-80 * cos(secondAngle)));
+		graphics.DrawLine(&secondPen, centre, secHand);
+	}
+	CView::OnTimer(nIDEvent);
+}
+
+void CGDISampleView::OnMenuitemClock()
+{
+	// TODO: 在此添加命令处理程序代码
+	SetTimer(200, 1000, NULL);
 }
