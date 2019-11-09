@@ -39,6 +39,7 @@ BEGIN_MESSAGE_MAP(CGDISampleView, CView)
 	ON_COMMAND(ID_MENUITEM_SAVESCREENTOFILE, &CGDISampleView::OnMenuitemSavescreentofile)
 	ON_COMMAND(ID_MENUITEM_MEMDC, &CGDISampleView::OnMenuitemMemdc)
 	ON_COMMAND(ID_MENUITEM_GEOMETRICPEN, &CGDISampleView::OnMenuitemGeometricpen)
+	ON_COMMAND(ID_MENUITEM_CROSSLINE, &CGDISampleView::OnMenuitemCrossline)
 END_MESSAGE_MAP()
 
 // CGDISampleView 构造/析构
@@ -311,5 +312,47 @@ void CGDISampleView::OnMenuitemGeometricpen()
 	{
 		MessageBox(L"提示", L"创建几何画笔失败");
 		return;
+	}
+}
+
+
+void CGDISampleView::OnMenuitemCrossline()
+{
+	// TODO: 在此添加命令处理程序代码
+	CDC* pDC = GetDC();
+	CPen newPen;
+	if (newPen.CreatePen(PS_SOLID, 2, RGB(125, 125, 125)))
+	{
+		const int HC = 9;
+		const int VC = 9;
+		CPen* pOldPen = pDC->SelectObject(&newPen);
+		CRect rect;
+		GetClientRect(&rect);
+		int dx = rect.Width() / (HC - 1);
+		int dy = rect.Height() / (VC - 1);
+		CPoint(*Point)[VC] = new CPoint[HC][VC];
+		for (int i = 0; i < HC; i++)
+		{
+			for (int j = 0; j < VC; j++)
+			{
+				Point[i][j].x = i*dx;
+				Point[i][j].y = j*dy;
+			}
+		}
+		for(int i=0;i<HC;i++)   
+		{   
+			pDC->MoveTo(Point[i][0]);   
+			pDC->LineTo(Point[i][VC-1]);   
+		}   
+		for(int j=0;j<VC;j++)   
+		{   
+			pDC->MoveTo(Point[0][j]);   
+			pDC->LineTo(Point[HC-1][j]);   
+		} 	
+		pDC->SelectObject(pOldPen);
+	}
+	else
+	{
+		MessageBox(L"网格绘制失败",L"提示");
 	}
 }

@@ -49,6 +49,7 @@ public:
 	afx_msg void OnMenuitemSavescreentofile();
 	afx_msg void OnMenuitemMemdc();
 	afx_msg void OnMenuitemGeometricpen();
+	afx_msg void OnMenuitemCrossline();
 };
 
 #ifndef _DEBUG  // GDISampleView.cpp 中的调试版本
