@@ -12,7 +12,8 @@
 #include "GDISampleDoc.h"
 #include "GDISampleView.h"
 #include "DlgEllip.h"
-#include <gdiplus.h>
+//#include <gdiplus.h>
+#include <gdipluscolor.h>
 using namespace Gdiplus;
 
 
@@ -36,6 +37,8 @@ BEGIN_MESSAGE_MAP(CGDISampleView, CView)
 	ON_COMMAND(ID_MENUITEM_BRUSH, &CGDISampleView::OnMenuitemBrush)
 	ON_COMMAND(ID_MENUITEM_BITMAPBRUSH, &CGDISampleView::OnMenuitemBitmapbrush)
 	ON_COMMAND(ID_MENUITEM_SAVESCREENTOFILE, &CGDISampleView::OnMenuitemSavescreentofile)
+	ON_COMMAND(ID_MENUITEM_MEMDC, &CGDISampleView::OnMenuitemMemdc)
+	ON_COMMAND(ID_MENUITEM_GEOMETRICPEN, &CGDISampleView::OnMenuitemGeometricpen)
 END_MESSAGE_MAP()
 
 // CGDISampleView 构造/析构
@@ -254,4 +257,59 @@ void CGDISampleView::OnMenuitemSavescreentofile()
 	bitmap.Save(L"screen1.jpg", &clsid, NULL);
 	CDC* pDC = GetDC();
 	pDC->TextOutW(10,10,L"保存屏幕抓图到screen1.jpg");
+}
+
+
+void CGDISampleView::OnMenuitemMemdc()
+{
+	// TODO: 在此添加命令处理程序代码
+	Bitmap bmp(300, 300);
+	Graphics g(&bmp);
+	Rect rect(0, 0, 300, 300);
+	LinearGradientBrush brush(rect, Color::Green, Color::Blue, LinearGradientModeHorizontal);
+	// 循环输出矩形
+	for (int j = 0; j < 60; j++)
+	{
+		for (int i = 0; i < 60; i++)
+		{
+			g.FillEllipse(&brush, i * 5, j * 5, 5, 5);
+		}
+	}
+	Graphics graphics(m_hWnd);
+	graphics.DrawImage(&bmp, 0, 0);
+}
+
+
+void CGDISampleView::OnMenuitemGeometricpen()
+{
+	// TODO: 在此添加命令处理程序代码
+	CDC* pDC = GetDC();
+	LOGBRUSH lb;
+	lb.lbStyle = BS_SOLID;
+	lb.lbColor = RGB(0, 0, 255);
+	lb.lbHatch = HS_CROSS;
+	// 创建几何画笔
+	HPEN hPen = ExtCreatePen(PS_GEOMETRIC | PS_ENDCAP_SQUARE | PS_JOIN_ROUND, 10, &lb, 0, NULL);
+	if (hPen == NULL)
+	{
+		MessageBox(L"提示", L"创建几何画笔失败");
+		return;
+	}
+	CPen newPen;
+	if (newPen.Attach(hPen))
+	{
+		CPen* pOldPen = pDC->SelectObject(&newPen);
+		CRect rect;
+		GetClientRect(&rect);
+		rect.top = rect.Height() / 4;
+		rect.bottom = rect.top * 3;
+		rect.left = rect.Width() / 4;
+		rect.right = rect.left * 3;
+		pDC->Rectangle(&rect);
+	}
+	else
+	{
+		MessageBox(L"提示", L"创建几何画笔失败");
+		return;
+	}
 }

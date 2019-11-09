@@ -47,6 +47,8 @@ public:
 	afx_msg void OnMenuitemBrush();
 	afx_msg void OnMenuitemBitmapbrush();
 	afx_msg void OnMenuitemSavescreentofile();
+	afx_msg void OnMenuitemMemdc();
+	afx_msg void OnMenuitemGeometricpen();
 };
 
 #ifndef _DEBUG  // GDISampleView.cpp 中的调试版本
