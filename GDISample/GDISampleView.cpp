@@ -53,6 +53,9 @@ BEGIN_MESSAGE_MAP(CGDISampleView, CView)
 	ON_COMMAND(ID_MENUITEM_DRAW_COLORCHANGE, &CGDISampleView::OnMenuitemDrawColorchange)
 	ON_COMMAND(ID_MENUITEM_SAVEMETAFILE, &CGDISampleView::OnMenuitemSavemetafile)
 	ON_COMMAND(ID_MENUITEM_SHOWPICCENTER, &CGDISampleView::OnMenuitemShowpiccenter)
+	ON_COMMAND(ID_MENUITEM_PICTURECOMB, &CGDISampleView::OnMenuitemPicturecomb)
+	ON_COMMAND(ID_MENUITEM_SAVEDC, &CGDISampleView::OnMenuitemSavedc)
+	ON_COMMAND(ID_MENUITEM_WONIULINE, &CGDISampleView::OnMenuitemWoniuline)
 END_MESSAGE_MAP()
 
 // CGDISampleView 构造/析构
@@ -624,7 +627,7 @@ void CGDISampleView::OnMenuitemShowpiccenter()
 	status = graphics.GetLastStatus();
 	if (status != Ok)
 		return;
-	Image image(L"雅男.jpg");
+	Image image(L"baby.JPG");
 	status = image.GetLastStatus();
 	if (status != Ok)
 		return;
@@ -633,4 +636,69 @@ void CGDISampleView::OnMenuitemShowpiccenter()
 	int nLeft = 10;
 	int nTop = 20;
 	graphics.DrawImage(&image, nLeft, nTop, rect.Width() - 2 * nLeft, rect.Height() - 2 * nTop);
+}
+
+
+void CGDISampleView::OnMenuitemPicturecomb()
+{
+	// TODO: 在此添加命令处理程序代码
+	Graphics graphics(m_hWnd);
+	Bitmap bg(L"girl1.jpg");
+	int bgWidth = bg.GetWidth();
+	int bgHeight = bg.GetHeight();
+	graphics.DrawImage(&bg, 0, 0, bgWidth, bgHeight);
+	Bitmap fg(L"girl2.jpg");
+	int fgWidth = fg.GetWidth();
+	int fgHeight = fg.GetHeight();
+	Color color, colorTemp;
+	// 使用 for 循环融合两幅图片的各个对应点的像素
+	for (int iRow = 0; iRow < fgHeight; iRow++)
+	{
+		for (int iColumn = 0; iColumn < fgWidth; iColumn++)
+		{
+			fg.GetPixel(iColumn, iRow, &color);
+			colorTemp.SetValue(color.MakeARGB(150, color.GetRed(), color.GetGreen(), color.GetBlue()));
+			fg.SetPixel(iColumn, iRow, colorTemp);
+		}
+	}
+	// 绘制融合后的图片
+	graphics.DrawImage(&fg, 0, 0, fgWidth, fgHeight);
+}
+
+
+void CGDISampleView::OnMenuitemSavedc()
+{
+	// TODO: 在此添加命令处理程序代码
+	CDC* pDC = GetDC();
+	CPen newPen;
+	if (newPen.CreatePen(PS_SOLID, 2, RGB(255, 0, 255)))
+	{
+		int saved = pDC->SaveDC();
+		pDC->SelectObject(&newPen);
+		CRect rect;
+		GetClientRect(&rect);
+		pDC->MoveTo(0, 0);
+		pDC->LineTo(rect.Width(), rect.Height());
+		pDC->RestoreDC(saved);
+		pDC->MoveTo(rect.Width(), 0);
+		pDC->LineTo(0, rect.Height());
+	}
+}
+
+
+void CGDISampleView::OnMenuitemWoniuline()
+{
+	// TODO: 在此添加命令处理程序代码
+	float pi = 3.1415926f;
+	CRect rect;
+	GetClientRect(&rect);
+	UINT width = rect.Width();
+	UINT height = rect.Height();
+	CDC* pDC = GetDC();
+	// 根据蜗牛线的算法绘制蜗牛曲线
+	for (float x = 0; x < 10 * pi; x += pi / width)
+	{
+		if (x == 0) pDC->SetPixel(width / 2, 0, RGB(255, 0, 0));
+		else pDC->SetPixel(width * sin(x) / x * cos(x) + width / 2, width*sin(x)/x*sin(x), RGB(255, 0, 0));
+	}
 }

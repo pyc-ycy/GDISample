@@ -59,6 +59,9 @@ public:
 	afx_msg void OnMenuitemDrawColorchange();
 	afx_msg void OnMenuitemSavemetafile();
 	afx_msg void OnMenuitemShowpiccenter();
+	afx_msg void OnMenuitemPicturecomb();
+	afx_msg void OnMenuitemSavedc();
+	afx_msg void OnMenuitemWoniuline();
 };
 
 #ifndef _DEBUG  // GDISampleView.cpp 中的调试版本
