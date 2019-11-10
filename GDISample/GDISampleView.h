@@ -54,6 +54,10 @@ public:
 	afx_msg void OnMenuitemMultibrush();
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	afx_msg void OnMenuitemClock();
+	afx_msg void OnMenuitemFillrect();
+	afx_msg void OnMenuitemColorchange();
+	afx_msg void OnMenuitemDrawColorchange();
+	afx_msg void OnMenuitemSavemetafile();
 };
 
 #ifndef _DEBUG  // GDISampleView.cpp 中的调试版本

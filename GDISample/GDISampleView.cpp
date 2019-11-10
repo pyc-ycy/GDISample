@@ -15,6 +15,7 @@
 #include <gdiplusheaders.h>
 #include <gdiplusbase.h>
 #include <gdipluscolor.h>
+#include <gdiplustypes.h>
 #include <math.h>
 #pragma comment(lib, "gdiplus.lib")
 using namespace Gdiplus;
@@ -47,6 +48,10 @@ BEGIN_MESSAGE_MAP(CGDISampleView, CView)
 	ON_COMMAND(ID_MENUITEM_MULTIBRUSH, &CGDISampleView::OnMenuitemMultibrush)
 	ON_WM_TIMER()
 	ON_COMMAND(ID_MENUITEM_CLOCK, &CGDISampleView::OnMenuitemClock)
+	ON_COMMAND(ID_MENUITEM_FILLRECT, &CGDISampleView::OnMenuitemFillrect)
+	ON_COMMAND(ID_MENUITEM_COLORCHANGE, &CGDISampleView::OnMenuitemColorchange)
+	ON_COMMAND(ID_MENUITEM_DRAW_COLORCHANGE, &CGDISampleView::OnMenuitemDrawColorchange)
+	ON_COMMAND(ID_MENUITEM_SAVEMETAFILE, &CGDISampleView::OnMenuitemSavemetafile)
 END_MESSAGE_MAP()
 
 // CGDISampleView 构造/析构
@@ -414,7 +419,7 @@ void CGDISampleView::OnMenuitemMultibrush()
 	newBrush.CreateSolidBrush(RGB(255, 255, 0));
 	CRect rect;
 	GetClientRect(&rect);
-	int width = rect.Width()/4;
+	int width = rect.Width()/4;	//将客户区域分为四部分
 	rect.right = width;
 	pDC->FillRect(&rect, &newBrush);
 	::DeleteObject((HGDIOBJ)newBrush);
@@ -517,4 +522,94 @@ void CGDISampleView::OnMenuitemClock()
 {
 	// TODO: 在此添加命令处理程序代码
 	SetTimer(200, 1000, NULL);
+}
+
+
+void CGDISampleView::OnMenuitemFillrect()
+{
+	// TODO: 在此添加命令处理程序代码
+	CDC* pDC = GetDC();
+	CBrush backBrush(RGB(255, 100, 50));
+	CRect rect;
+	GetClientRect(&rect);
+	rect.top = rect.Height() / 4;
+	rect.bottom = rect.top * 3;
+	rect.left = rect.Width() / 4;
+	rect.right = rect.left * 3;
+	pDC->FillRect(&rect, &backBrush);
+}
+
+
+void CGDISampleView::OnMenuitemColorchange()
+{
+	// TODO: 在此添加命令处理程序代码
+	CDC* pDC = GetDC();
+	int i = 0, j = 0;
+	for(i=0;i<255;i++)
+		for (j = 0; j < 255; j++)
+		{
+			DWORD dwColor = (unsigned long)(0x00000000 | 0 | j << 8 | i);
+			pDC->SetPixel(i, j, dwColor);
+		}
+}
+
+
+void CGDISampleView::OnMenuitemDrawColorchange()
+{
+	// TODO: 在此添加命令处理程序代码
+	CDC* pDC = GetDC();
+	CRect rect;
+	GetClientRect(&rect);
+	TRIVERTEX vert[2];
+	GRADIENT_RECT gRect;
+	vert[0].x = rect.left;
+	vert[0].y = rect.top;
+	vert[0].Red = 0xff00;
+	vert[0].Green = 0x0000;
+	vert[0].Blue = 0x0000;
+	vert[0].Alpha = 0;
+	vert[1].x = rect.right;
+	vert[1].y = rect.bottom;
+	vert[1].Red = 0x0000;
+	vert[1].Green = 0xff00;
+	vert[1].Blue = 0x0000;
+	vert[1].Alpha = 0;
+	gRect.UpperLeft = 0;
+	gRect.LowerRight = 1;
+	//绘制渐变矩形
+	GradientFill(pDC->GetSafeHdc(), vert, 2, &gRect, 1, GRADIENT_FILL_RECT_H);
+}
+
+
+void CGDISampleView::OnMenuitemSavemetafile()
+{
+	// TODO: 在此添加命令处理程序代码
+	CDC* pDC = GetDC();
+	Status status = GenericError;
+	Metafile metafile(L"MFSample.emf", pDC->m_hDC);		//定义图元文件变量
+	{
+		Graphics graphics(&metafile);
+		status = graphics.GetLastStatus();	//获取装载状态
+		if (status != Ok)
+			return;
+		Pen pen(Color(255, 0, 255, 0));
+		status = pen.GetLastStatus();	// 获取创建状态
+		if (status != Ok)
+			return;
+		SolidBrush solidBrush(Color(255, 0, 255, 255));
+		status = solidBrush.GetLastStatus();
+		if (status != Ok)
+			return;
+		CRect rect;
+		GetClientRect(&rect);
+		int nLeft = (rect.Width()) / 2;
+		int nTop = (rect.Height()) / 2;
+		Gdiplus::Rect rt(0, 0, nLeft, nTop);
+		Gdiplus::Rect rt1(nLeft, nTop, nLeft / 2, nTop/2);
+		graphics.DrawRectangle(&pen,rt);
+		graphics.FillEllipse(&solidBrush, rt1);
+		graphics.SetSmoothingMode(SmoothingModeHighQuality);
+	}
+	Graphics graphics(pDC->m_hDC);
+	graphics.DrawImage(&metafile, 0, 0);
 }
