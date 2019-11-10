@@ -52,6 +52,7 @@ BEGIN_MESSAGE_MAP(CGDISampleView, CView)
 	ON_COMMAND(ID_MENUITEM_COLORCHANGE, &CGDISampleView::OnMenuitemColorchange)
 	ON_COMMAND(ID_MENUITEM_DRAW_COLORCHANGE, &CGDISampleView::OnMenuitemDrawColorchange)
 	ON_COMMAND(ID_MENUITEM_SAVEMETAFILE, &CGDISampleView::OnMenuitemSavemetafile)
+	ON_COMMAND(ID_MENUITEM_SHOWPICCENTER, &CGDISampleView::OnMenuitemShowpiccenter)
 END_MESSAGE_MAP()
 
 // CGDISampleView 构造/析构
@@ -612,4 +613,24 @@ void CGDISampleView::OnMenuitemSavemetafile()
 	}
 	Graphics graphics(pDC->m_hDC);
 	graphics.DrawImage(&metafile, 0, 0);
+}
+
+
+void CGDISampleView::OnMenuitemShowpiccenter()
+{
+	// TODO: 在此添加命令处理程序代码
+	Status status = GenericError;
+	Graphics graphics(m_hWnd);
+	status = graphics.GetLastStatus();
+	if (status != Ok)
+		return;
+	Image image(L"雅男.jpg");
+	status = image.GetLastStatus();
+	if (status != Ok)
+		return;
+	CRect rect;
+	GetClientRect(&rect);
+	int nLeft = 10;
+	int nTop = 20;
+	graphics.DrawImage(&image, nLeft, nTop, rect.Width() - 2 * nLeft, rect.Height() - 2 * nTop);
 }
