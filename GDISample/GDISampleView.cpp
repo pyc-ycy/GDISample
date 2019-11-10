@@ -56,6 +56,9 @@ BEGIN_MESSAGE_MAP(CGDISampleView, CView)
 	ON_COMMAND(ID_MENUITEM_PICTURECOMB, &CGDISampleView::OnMenuitemPicturecomb)
 	ON_COMMAND(ID_MENUITEM_SAVEDC, &CGDISampleView::OnMenuitemSavedc)
 	ON_COMMAND(ID_MENUITEM_WONIULINE, &CGDISampleView::OnMenuitemWoniuline)
+	ON_COMMAND(ID_MENUITEM_DRAWBEZIER, &CGDISampleView::OnMenuitemDrawbezier)
+	ON_COMMAND(ID_MENUITEM_SINLINE, &CGDISampleView::OnMenuitemSinline)
+	ON_COMMAND(ID_MENUITEM_RUIHUA, &CGDISampleView::OnMenuitemRuihua)
 END_MESSAGE_MAP()
 
 // CGDISampleView 构造/析构
@@ -701,4 +704,103 @@ void CGDISampleView::OnMenuitemWoniuline()
 		if (x == 0) pDC->SetPixel(width / 2, 0, RGB(255, 0, 0));
 		else pDC->SetPixel(width * sin(x) / x * cos(x) + width / 2, width*sin(x)/x*sin(x), RGB(255, 0, 0));
 	}
+}
+
+
+void CGDISampleView::OnMenuitemDrawbezier()
+{
+	// TODO: 在此添加命令处理程序代码
+	CDC* pDC = GetDC();
+	//定义贝塞尔曲线点集合
+	CPoint pt[] = { CPoint(40,72),CPoint(107,302),
+					CPoint(329, 292),CPoint(79, 148),
+		CPoint(498, 29),CPoint(322, 201),CPoint(176, 137)
+	};
+	pDC->PolyBezier(pt, sizeof(pt) / sizeof(pt[0]));	//绘制贝塞尔曲线
+}
+
+
+void CGDISampleView::OnMenuitemSinline()
+{
+	// TODO: 在此添加命令处理程序代码
+	float pi = 3.1415926f;
+	Status status = GenericError;
+	Graphics graphics(m_hWnd);
+	status = graphics.GetLastStatus();
+	if (status != Ok)
+		return;
+	CRect rect;
+	GetClientRect(&rect);
+	UINT width = rect.Width();
+	UINT height = rect.Height();
+	Pen bluePen(Color(255, 0, 0, 255), 1);
+	graphics.DrawLine(&bluePen, 0, height / 2, width, height / 2);
+	Pen redPen(Color(255, 255, 0, 0), 2);
+	float oldx = 0.0, oldy = (width/2);
+	//绘制正弦曲线
+	for (float x = 0; x < width; x++)
+	{
+		float radian = x / width * pi * 10;
+		float y = sin(radian);
+		y = (1 - y) * height / 2;
+		graphics.DrawLine(&redPen, oldx, oldy, x, y);
+		oldx = x;
+		oldy = y;
+	}
+}
+
+
+void CGDISampleView::OnMenuitemRuihua()
+{
+	// TODO: 在此添加命令处理程序代码
+	Status status = GenericError;
+	Graphics graphics(m_hWnd);
+	status = graphics.GetLastStatus();
+	if (status != Ok)
+		return;
+	Bitmap oldBitmap(L"雅男.jpg");
+	status = oldBitmap.GetLastStatus();
+	if (status != Ok)
+		return;
+	UINT width = oldBitmap.GetWidth();
+	UINT height = oldBitmap.GetHeight();
+	Bitmap newBitmap(width, height);
+	Color pixel1, pixel2, pixel;
+	//绘制原图像
+	graphics.DrawImage(&oldBitmap, 10, 0, width, height);
+	// 拉普拉斯模板
+	int Laplacian[] = { -1, -1, -1, -1, 9, -1, -1, -1, -1 };
+	// 使用锐化模板计算锐化后的图像
+	for (int x = 1; x < width; x++)
+	{
+		for (int y = 1; y < height; y++)
+		{
+			int r = 0, g = 0, b = 0;
+			int Index = 0;
+			for(int col=-1;col<=1;col++)
+				for (int row = -1; row <= 1; row++)
+				{
+					oldBitmap.GetPixel(x + row, y + col, &pixel);
+					r += pixel.GetRed() * Laplacian[Index];
+					g += pixel.GetGreen() * Laplacian[Index];
+					b += pixel.GetBlue() * Laplacian[Index];
+					Index++;
+				}
+			if (r > 255)
+				r = 255;
+			else if (r < 0)
+				r = -r;
+			if (g > 255)
+				g = 255;
+			else if (g < 0)
+				g = -g;
+			if (b > 255)
+				b = 255;
+			else if (b < 0)
+				b = -b;
+			pixel.SetFromCOLORREF(RGB(r, g, b));
+			newBitmap.SetPixel(x - 1, y - 1, pixel);
+		}
+	}
+	graphics.DrawImage(&newBitmap, width + 20, 0, width, height);
 }

@@ -62,6 +62,9 @@ public:
 	afx_msg void OnMenuitemPicturecomb();
 	afx_msg void OnMenuitemSavedc();
 	afx_msg void OnMenuitemWoniuline();
+	afx_msg void OnMenuitemDrawbezier();
+	afx_msg void OnMenuitemSinline();
+	afx_msg void OnMenuitemRuihua();
 };
 
 #ifndef _DEBUG  // GDISampleView.cpp 中的调试版本
