@@ -65,6 +65,8 @@ public:
 	afx_msg void OnMenuitemDrawbezier();
 	afx_msg void OnMenuitemSinline();
 	afx_msg void OnMenuitemRuihua();
+	afx_msg void OnMenuitemRouhua();
+	afx_msg void OnMenuitemFanse();
 };
 
 #ifndef _DEBUG  // GDISampleView.cpp 中的调试版本

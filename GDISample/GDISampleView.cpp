@@ -59,6 +59,8 @@ BEGIN_MESSAGE_MAP(CGDISampleView, CView)
 	ON_COMMAND(ID_MENUITEM_DRAWBEZIER, &CGDISampleView::OnMenuitemDrawbezier)
 	ON_COMMAND(ID_MENUITEM_SINLINE, &CGDISampleView::OnMenuitemSinline)
 	ON_COMMAND(ID_MENUITEM_RUIHUA, &CGDISampleView::OnMenuitemRuihua)
+	ON_COMMAND(ID_MENUITEM_ROUHUA, &CGDISampleView::OnMenuitemRouhua)
+	ON_COMMAND(ID_MENUITEM_FANSE, &CGDISampleView::OnMenuitemFanse)
 END_MESSAGE_MAP()
 
 // CGDISampleView 构造/析构
@@ -758,7 +760,7 @@ void CGDISampleView::OnMenuitemRuihua()
 	status = graphics.GetLastStatus();
 	if (status != Ok)
 		return;
-	Bitmap oldBitmap(L"雅男.jpg");
+	Bitmap oldBitmap(L"wyn.jpg");
 	status = oldBitmap.GetLastStatus();
 	if (status != Ok)
 		return;
@@ -803,4 +805,127 @@ void CGDISampleView::OnMenuitemRuihua()
 		}
 	}
 	graphics.DrawImage(&newBitmap, width + 20, 0, width, height);
+}
+
+
+void CGDISampleView::OnMenuitemRouhua()
+{
+	// TODO: 在此添加命令处理程序代码
+	Status status = GenericError;
+	Graphics graphics(m_hWnd);
+	status = graphics.GetLastStatus();
+	if (status != Ok)
+		return;
+	Bitmap oldBitmap(L"yn.jpg");
+	if (status != Ok)
+		return;
+	UINT width = oldBitmap.GetWidth();
+	UINT height = oldBitmap.GetHeight();
+	Bitmap newBitmap(width, height);
+	Bitmap newBitmap1(width, height);
+	Color pixel1, pixel2, pixel;
+	graphics.DrawImage(&oldBitmap, 10, 0, width * 0.7, height * 0.7);
+	int smoothGauss[9] = { 1,2,1,2,4,2,1,2,1 };	// 高斯模板
+	//使用高斯模板计算柔滑后的图像
+	for (int x = 1; x < width; x++)
+	{
+		for (int y = 1; y < height; y++)
+		{
+			int r = 0, g = 0, b = 0;
+			int Index = 0;
+			for(int col=-1;col<=1;col++)
+				for (int row = -1; row <= 1; row++)
+				{
+					oldBitmap.GetPixel(x + row, y + col, &pixel);
+					r += pixel.GetRed() * smoothGauss[Index];
+					g += pixel.GetGreen() * smoothGauss[Index];
+					b += pixel.GetBlue() * smoothGauss[Index];
+					Index++;
+				}
+			r = (r / 16);
+			g = (g / 16);
+			b = (b / 16);
+			if (r > 255)
+				r = 255;
+			else if (r < 0)
+				r = -r;
+			if (g > 255)
+				g = 255;
+			else if (g < 0)
+				g = -g;
+			if (b > 255)
+				b = 255;
+			else if (b < 0)
+				b = -b;
+			pixel.SetFromCOLORREF(RGB(r, g, b));
+			newBitmap.SetPixel(x - 1, y - 1, pixel);
+		}
+	}
+	//绘制柔化后的图像
+	graphics.DrawImage(&newBitmap, width * 0.8 + 20, 0, width * 0.7, height * 0.7);
+	// 拉普拉斯模板
+	int Laplacian[] = { -1, -1, -1, -1, 9, -1, -1, -1, -1 };
+	// 使用锐化模板计算锐化后的图像
+	for (int x = 1; x < width; x++)
+	{
+		for (int y = 1; y < height; y++)
+		{
+			int r = 0, g = 0, b = 0;
+			int Index = 0;
+			for (int col = -1; col <= 1; col++)
+				for (int row = -1; row <= 1; row++)
+				{
+					oldBitmap.GetPixel(x + row, y + col, &pixel);
+					r += pixel.GetRed() * Laplacian[Index];
+					g += pixel.GetGreen() * Laplacian[Index];
+					b += pixel.GetBlue() * Laplacian[Index];
+					Index++;
+				}
+			if (r > 255)
+				r = 255;
+			else if (r < 0)
+				r = -r;
+			if (g > 255)
+				g = 255;
+			else if (g < 0)
+				g = -g;
+			if (b > 255)
+				b = 255;
+			else if (b < 0)
+				b = -b;
+			pixel.SetFromCOLORREF(RGB(r, g, b));
+			newBitmap1.SetPixel(x - 1, y - 1, pixel);
+		}
+	}
+	graphics.DrawImage(&newBitmap1, (width * 0.8 + 20)*2, 0, width*0.7, height*0.7);
+}
+
+
+void CGDISampleView::OnMenuitemFanse()
+{
+	// TODO: 在此添加命令处理程序代码
+	ColorMatrix colorMatrix = {
+		-1.0f,0.0f,0.0f,0.0f,0.0f,0.0f,-1.0f,
+		0.0f,0.0f,0.0f,0.0f,0.0f,-1.0f,0.0f,
+		0.0f,0.0f,0.0f,0.0f,1.0f,0.0f,
+		1.0f,1.0f,1.0f,1.0f,1.0f
+	};
+	Status status = GenericError;
+	Graphics graphics(m_hWnd);
+	status = graphics.GetLastStatus();
+	if (status != Ok)
+		return;
+	Image image(L"wyn.jpg");
+	status = image.GetLastStatus();
+	if (status != Ok)
+		return;
+	UINT width = image.GetWidth();
+	UINT height = image.GetHeight();
+	ImageAttributes imageAttributes;
+	Rect destRect1(width*1+ 20, 10, width * 5, height * 5);
+	// 设置图像的反色矩阵
+	imageAttributes.SetColorMatrix(&colorMatrix,
+		ColorMatrixFlagsDefault, ColorAdjustTypeBitmap);
+	graphics.DrawImage(&image, 10, 10, width * 1, height * 1);
+	graphics.DrawImage(&image, destRect1, 0, 0, width * 5, height * 5, UnitPixel, &imageAttributes);
 }
