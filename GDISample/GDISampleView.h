@@ -67,6 +67,7 @@ public:
 	afx_msg void OnMenuitemRuihua();
 	afx_msg void OnMenuitemRouhua();
 	afx_msg void OnMenuitemFanse();
+	afx_msg void OnMenuitemHuidu();
 };
 
 #ifndef _DEBUG  // GDISampleView.cpp 中的调试版本
