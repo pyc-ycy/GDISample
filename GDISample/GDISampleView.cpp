@@ -67,6 +67,7 @@ BEGIN_MESSAGE_MAP(CGDISampleView, CView)
 	ON_COMMAND(ID_MENUITEM_RESIZE, &CGDISampleView::OnMenuitemResize)
 	ON_COMMAND(ID_MENUITEM_CUT, &CGDISampleView::OnMenuitemCut)
 	ON_COMMAND(ID_MENUITEM_MASAIKE, &CGDISampleView::OnMenuitemMasaike)
+	ON_COMMAND(ID_MENUITEM_HBAIYE, &CGDISampleView::OnMenuitemHbaiye)
 END_MESSAGE_MAP()
 
 // CGDISampleView 构造/析构
@@ -1079,6 +1080,37 @@ void CGDISampleView::OnMenuitemMasaike()
 			Rect destRect(dw * m, dh * n, (m + 1) * dw, (n + 1) * dh);
 			// 绘制马赛克图像块
 			graphics.DrawImage(&image, destRect, dw * m, dh * n, (m + 1) * dw, (n + 1) * dh, UnitPixel);
+		}
+		Sleep(10);
+	}
+}
+
+
+void CGDISampleView::OnMenuitemHbaiye()
+{
+	// TODO: 在此添加命令处理程序代码
+	Status status = GenericError;
+	Graphics graphics(m_hWnd);
+	status = graphics.GetLastStatus();
+	if (status != Ok)
+		return;
+	graphics.Clear(Color::White);
+	Image image(L"girl.jpg");
+	status = image.GetLastStatus();
+	if (status != Ok)
+		return;
+	UINT width = image.GetWidth();
+	UINT height = image.GetHeight();
+	int nPixes = 30;
+	int nNum = width / nPixes;
+	for (int i = 0; i < nPixes; i++)
+	{
+		for (int j = 0; j < nNum; j++)
+		{
+			// 分别扫描条
+			Rect destRect1(j * nPixes + i, 0, 1, height);
+			// 绘制每条百叶条的图像
+			graphics.DrawImage(&image, destRect1, j * nPixes + i, 0, 1, height, UnitPixel);
 		}
 		Sleep(10);
 	}
