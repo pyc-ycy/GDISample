@@ -68,6 +68,8 @@ BEGIN_MESSAGE_MAP(CGDISampleView, CView)
 	ON_COMMAND(ID_MENUITEM_CUT, &CGDISampleView::OnMenuitemCut)
 	ON_COMMAND(ID_MENUITEM_MASAIKE, &CGDISampleView::OnMenuitemMasaike)
 	ON_COMMAND(ID_MENUITEM_HBAIYE, &CGDISampleView::OnMenuitemHbaiye)
+	ON_COMMAND(ID_MENUITEM_VBAIYE, &CGDISampleView::OnMenuitemVbaiye)
+	ON_COMMAND(ID_MENUITEM_DRAWLINE_ON_IMAGE, &CGDISampleView::OnMenuitemDrawlineOnImage)
 END_MESSAGE_MAP()
 
 // CGDISampleView 构造/析构
@@ -1095,7 +1097,7 @@ void CGDISampleView::OnMenuitemHbaiye()
 	if (status != Ok)
 		return;
 	graphics.Clear(Color::White);
-	Image image(L"girl.jpg");
+	Image image(L"雅男.jpg");
 	status = image.GetLastStatus();
 	if (status != Ok)
 		return;
@@ -1114,4 +1116,63 @@ void CGDISampleView::OnMenuitemHbaiye()
 		}
 		Sleep(10);
 	}
+}
+
+
+void CGDISampleView::OnMenuitemVbaiye()
+{
+	// TODO: 在此添加命令处理程序代码
+	Status status = GenericError;
+	Graphics graphics(m_hWnd);
+	status = graphics.GetLastStatus();
+	if (status != Ok)
+		return;
+	graphics.Clear(Color::White);
+	Image image(L"雅男.jpg");
+	status = image.GetLastStatus();
+	if (status != Ok)
+		return;
+	UINT width = image.GetWidth();
+	UINT height = image.GetHeight();
+	int nPixes = 15;
+	int nNum = height / nPixes;		// 计算垂直百叶窗的个数
+	for (int i = 0; i < nPixes; i++)
+	{
+		for (int j = 0; j < nNum; j++)
+		{
+			Rect destRect(0, j * nPixes + i, width, 1);
+			// 绘制每条百叶窗的图像
+			graphics.DrawImage(&image, destRect, 0, j * nPixes + i, width, 1, UnitPixel);
+		}
+		Sleep(50);
+	}
+}
+
+
+void CGDISampleView::OnMenuitemDrawlineOnImage()
+{
+	// TODO: 在此添加命令处理程序代码
+	Status status = GenericError;
+	Graphics graphics(m_hWnd);
+	status = graphics.GetLastStatus();
+	if (status != Ok)
+		return;
+	graphics.Clear(Color::White);
+	Image image(L"baby1.jpg");
+	status = image.GetLastStatus();
+	if (status != Ok)
+		return;
+	UINT width = image.GetWidth();
+	UINT height = image.GetHeight();
+	// 计算线条区域
+	Rect destRect(width + 20, 10, width, height);
+	graphics.DrawImage(&image, 10, 10, width, height);
+	//绘制目标区域
+	graphics.DrawImage(&image, destRect, 0, 0, width, height, UnitPixel);
+	Pen pen(Color(255, 255, 0, 0), 3);
+	int nLineCount = 18;
+	int h = height / (nLineCount - 1);	//计算画笔宽度
+	//绘制线条
+	for (int i = 0; i < nLineCount; i++)
+		graphics.DrawLine(&pen, width + 20, h * i + 10, width * 2 + 20, h * i + 10);
 }

@@ -74,6 +74,8 @@ public:
 	afx_msg void OnMenuitemCut();
 	afx_msg void OnMenuitemMasaike();
 	afx_msg void OnMenuitemHbaiye();
+	afx_msg void OnMenuitemVbaiye();
+	afx_msg void OnMenuitemDrawlineOnImage();
 };
 
 #ifndef _DEBUG  // GDISampleView.cpp 中的调试版本
