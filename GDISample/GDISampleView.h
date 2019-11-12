@@ -68,6 +68,11 @@ public:
 	afx_msg void OnMenuitemRouhua();
 	afx_msg void OnMenuitemFanse();
 	afx_msg void OnMenuitemHuidu();
+	afx_msg void OnMenuitemFudiao();
+	afx_msg void OnMenuitemReserve();
+	afx_msg void OnMenuitemResize();
+	afx_msg void OnMenuitemCut();
+	afx_msg void OnMenuitemMasaike();
 };
 
 #ifndef _DEBUG  // GDISampleView.cpp 中的调试版本

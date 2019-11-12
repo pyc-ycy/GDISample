@@ -40,13 +40,18 @@
 #define ID_MENUITEM_ROUHUA              32799
 #define ID_MENUITEM_FANSE               32800
 #define ID_MENUITEM_HUIDU               32801
+#define ID_MENUITEM_FUDIAO              32802
+#define ID_MENUITEM_RESERVE             32803
+#define ID_MENUITEM_RESIZE              32804
+#define ID_MENUITEM_CUT                 32805
+#define ID_MENUITEM_MASAIKE             32806
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        314
-#define _APS_NEXT_COMMAND_VALUE         32802
+#define _APS_NEXT_COMMAND_VALUE         32807
 #define _APS_NEXT_CONTROL_VALUE         1000
 #define _APS_NEXT_SYMED_VALUE           310
 #endif

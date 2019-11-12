@@ -62,6 +62,11 @@ BEGIN_MESSAGE_MAP(CGDISampleView, CView)
 	ON_COMMAND(ID_MENUITEM_ROUHUA, &CGDISampleView::OnMenuitemRouhua)
 	ON_COMMAND(ID_MENUITEM_FANSE, &CGDISampleView::OnMenuitemFanse)
 	ON_COMMAND(ID_MENUITEM_HUIDU, &CGDISampleView::OnMenuitemHuidu)
+	ON_COMMAND(ID_MENUITEM_FUDIAO, &CGDISampleView::OnMenuitemFudiao)
+	ON_COMMAND(ID_MENUITEM_RESERVE, &CGDISampleView::OnMenuitemReserve)
+	ON_COMMAND(ID_MENUITEM_RESIZE, &CGDISampleView::OnMenuitemResize)
+	ON_COMMAND(ID_MENUITEM_CUT, &CGDISampleView::OnMenuitemCut)
+	ON_COMMAND(ID_MENUITEM_MASAIKE, &CGDISampleView::OnMenuitemMasaike)
 END_MESSAGE_MAP()
 
 // CGDISampleView 构造/析构
@@ -926,4 +931,155 @@ void CGDISampleView::OnMenuitemHuidu()
 	graphics.DrawImage(&image, 10, 10, width, height);
 	// 绘制灰度图像
 	graphics.DrawImage(&image, destRect1, 0, 0, width, height, UnitPixel, &imageAttributes);
+}
+
+
+void CGDISampleView::OnMenuitemFudiao()
+{
+	// TODO: 在此添加命令处理程序代码
+	Status status = GenericError;
+	Graphics graphics(m_hWnd);
+	status = graphics.GetLastStatus();
+	if (status != Ok)
+		return;
+	Bitmap oldBitmap(L"girl.jpg");
+	status = oldBitmap.GetLastStatus();
+	if (status != Ok)
+		return;
+	UINT width = oldBitmap.GetWidth();
+	UINT height = oldBitmap.GetHeight();
+	Bitmap newBitmap(width, height);
+	Color pixel1, pixel2, pixel;
+	graphics.DrawImage(&oldBitmap, 10, 0, width, height);
+	for (int x = 0; x < width - 1; x++)
+	{
+		for (int y = 0; y < height - 1; y++)
+		{
+			int r = 0, g = 0, b = 0;
+			oldBitmap.GetPixel(x, y, &pixel1);
+			oldBitmap.GetPixel(x + 1, y + 1, &pixel2);
+			r = abs(pixel1.GetRed() - pixel2.GetRed() + 128);
+			g = abs(pixel1.GetGreen() - pixel2.GetGreen() + 128);
+			b = abs(pixel1.GetBlue() - pixel2.GetBlue() + 128);
+			if (r > 255)
+				r = 255;
+			if (r < 0)
+				r = 0;
+			if (g > 255)
+				g = 255;
+			if (g < 0)
+				g = 0;
+			if (b > 255)
+				b = 255;
+			if (b < 0)
+				b = 0;
+			pixel.SetFromCOLORREF(RGB(r, g, b));
+			newBitmap.SetPixel(x, y, pixel);
+		}
+	}
+	// 绘制经过浮雕效果转换的位图
+	graphics.DrawImage(&newBitmap, width + 20, 0, width, height);
+}
+
+
+void CGDISampleView::OnMenuitemReserve()
+{
+	// TODO: 在此添加命令处理程序代码
+	Status status = GenericError;
+	Graphics graphics(m_hWnd);
+	status = graphics.GetLastStatus();
+	if (status != Ok)
+		return;
+	Image image(L"girl.jpg");
+	status = image.GetLastStatus();
+	if (status != Ok)
+		return;
+	UINT width = image.GetWidth();
+	UINT height = image.GetHeight();
+	graphics.DrawImage(&image, 10, 0, width, height);
+	image.RotateFlip(Rotate180FlipX);
+	width = image.GetWidth();
+	height = image.GetHeight();
+	// 绘制翻转后的图像
+	graphics.DrawImage(&image, 20 + width, 0, width, height);
+}
+
+
+void CGDISampleView::OnMenuitemResize()
+{
+	// TODO: 在此添加命令处理程序代码
+	Status status = GenericError;
+	Graphics graphics(m_hWnd);
+	status = graphics.GetLastStatus();
+	if (status != Ok)
+		return;
+	Image image(L"girl.jpg");
+	status = image.GetLastStatus();
+	if (status != Ok)
+		return;
+	UINT width = image.GetWidth();
+	UINT height = image.GetHeight();
+	graphics.DrawImage(&image, 10, 0, width, height);
+	// 缩放 4 倍
+	graphics.DrawImage(&image, width + 20, 0, width * 2, height * 2);
+}
+
+
+void CGDISampleView::OnMenuitemCut()
+{
+	// TODO: 在此添加命令处理程序代码
+	Status status = GenericError;
+	Graphics graphics(m_hWnd);
+	status = graphics.GetLastStatus();
+	if (status != Ok)
+		return;
+	Image image(L"yn.jpg");
+	status = image.GetLastStatus();
+	if (status != Ok)
+		return;
+	UINT width = image.GetWidth();
+	UINT height = image.GetHeight();
+	Rect destRect1(width + 20, 20, 150, 150);	//小范围
+	Rect destRect2(width + 20, 200, 320, 320);	//大范围
+	graphics.DrawImage(&image, 0, 0, width, height);	//原始图像
+	graphics.DrawImage(&image, destRect1, 240, 475, 135, 135, UnitPixel);	//绘制缩小剪切
+	graphics.DrawImage(&image, destRect2, 240, 475, 135, 135, UnitPixel);	//绘制放大剪切
+}
+
+
+void CGDISampleView::OnMenuitemMasaike()
+{
+	// TODO: 在此添加命令处理程序代码
+	Status status = GenericError;
+	Graphics graphics(m_hWnd);
+	status = graphics.GetLastStatus();
+	if (status != Ok)
+		return;
+	graphics.Clear(Color::White);
+	Image image(L"wyn.jpg");
+	status = image.GetLastStatus();
+	if (status != Ok)
+		return;
+	UINT width = image.GetWidth();
+	UINT height = image.GetHeight();
+	int dw = width / 50;
+	int dh = height / 50;
+	int points[2500] = { 0 };
+	int ncount = 0;
+	// 使用 while 循环输出马赛克效果
+	while (ncount < 80)
+	{
+		int index = rand() % 2500;
+		if (points[index] == 0)
+		{
+			ncount++;
+			points[index] = 1;
+			int m = index / 50;
+			int n = index % 50;
+			Rect destRect(dw * m, dh * n, (m + 1) * dw, (n + 1) * dh);
+			// 绘制马赛克图像块
+			graphics.DrawImage(&image, destRect, dw * m, dh * n, (m + 1) * dw, (n + 1) * dh, UnitPixel);
+		}
+		Sleep(10);
+	}
 }
