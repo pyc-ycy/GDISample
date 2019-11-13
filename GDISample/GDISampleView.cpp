@@ -70,6 +70,7 @@ BEGIN_MESSAGE_MAP(CGDISampleView, CView)
 	ON_COMMAND(ID_MENUITEM_HBAIYE, &CGDISampleView::OnMenuitemHbaiye)
 	ON_COMMAND(ID_MENUITEM_VBAIYE, &CGDISampleView::OnMenuitemVbaiye)
 	ON_COMMAND(ID_MENUITEM_DRAWLINE_ON_IMAGE, &CGDISampleView::OnMenuitemDrawlineOnImage)
+	ON_COMMAND(ID_MENUITEM_DRAWNETLINEONTIMG, &CGDISampleView::OnMenuitemDrawnetlineontimg)
 END_MESSAGE_MAP()
 
 // CGDISampleView 构造/析构
@@ -1175,4 +1176,38 @@ void CGDISampleView::OnMenuitemDrawlineOnImage()
 	//绘制线条
 	for (int i = 0; i < nLineCount; i++)
 		graphics.DrawLine(&pen, width + 20, h * i + 10, width * 2 + 20, h * i + 10);
+}
+
+
+void CGDISampleView::OnMenuitemDrawnetlineontimg()
+{
+	// TODO: 在此添加命令处理程序代码
+	Status status = GenericError;
+	Graphics graphics(m_hWnd);
+	status = graphics.GetLastStatus();
+	if (status != Ok)
+		return;
+	graphics.Clear(Color::White);
+	Image image(L"baby1.jpg");
+	status = image.GetLastStatus();
+	if (status != Ok)
+		return;
+	UINT width = image.GetWidth();
+	UINT height = image.GetHeight();
+	// 计算线条区域
+	Rect destRect(width + 20, 10, width, height);
+	graphics.DrawImage(&image, 10, 10, width, height);
+	//绘制目标区域
+	graphics.DrawImage(&image, destRect, 0, 0, width, height, UnitPixel);
+	Pen pen(Color(255, 255, 0, 0), 3);
+	int nXCount = 18;
+	int nYCount = 18;
+	//绘制横线
+	int h = height / (nYCount - 1);
+	for(int i=1;i<nXCount;i++)
+		graphics.DrawLine(&pen, width + 20, h * i + 10, width * 2 + 20, h * i + 10);
+	//绘制纵线
+	int w = width / (nYCount - 1);
+	for (int i = 0; i < nYCount; i++)
+		graphics.DrawLine(&pen, w * i + 20 + width, 10, w * i + 20 + width, 10 + height);
 }
