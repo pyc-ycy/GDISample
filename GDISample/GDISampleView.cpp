@@ -71,6 +71,12 @@ BEGIN_MESSAGE_MAP(CGDISampleView, CView)
 	ON_COMMAND(ID_MENUITEM_VBAIYE, &CGDISampleView::OnMenuitemVbaiye)
 	ON_COMMAND(ID_MENUITEM_DRAWLINE_ON_IMAGE, &CGDISampleView::OnMenuitemDrawlineOnImage)
 	ON_COMMAND(ID_MENUITEM_DRAWNETLINEONTIMG, &CGDISampleView::OnMenuitemDrawnetlineontimg)
+	ON_COMMAND(ID_MENUITEM_OPENHIGHIMG, &CGDISampleView::OnMenuitemOpenhighimg)
+	ON_WM_LBUTTONDOWN()
+	ON_WM_LBUTTONUP()
+	ON_WM_MOUSEMOVE()
+	ON_WM_PAINT()
+	ON_COMMAND(ID_MENUITEM_DRAG, &CGDISampleView::OnMenuitemDrag)
 END_MESSAGE_MAP()
 
 // CGDISampleView 构造/析构
@@ -1210,4 +1216,140 @@ void CGDISampleView::OnMenuitemDrawnetlineontimg()
 	int w = width / (nYCount - 1);
 	for (int i = 0; i < nYCount; i++)
 		graphics.DrawLine(&pen, w * i + 20 + width, 10, w * i + 20 + width, 10 + height);
+}
+
+
+void CGDISampleView::OnMenuitemOpenhighimg()
+{
+	// TODO: 在此添加命令处理程序代码
+	Graphics graphics(m_hWnd);
+	Image image(L"girl.jpg");
+	UINT width = image.GetWidth();
+	UINT height = image.GetHeight();
+	graphics.SetInterpolationMode(InterpolationModeHighQualityBicubic);
+	// 绘制高质量图像
+	graphics.DrawImage(&image, 10, 10, width*2, height*2);
+	graphics.SetInterpolationMode(InterpolationModeNearestNeighbor);
+	//绘制低质量图像
+	graphics.DrawImage(&image, width*2 + 20, 10, width*2, height*2);
+}
+
+
+void CGDISampleView::OnLButtonDown(UINT nFlags, CPoint point)
+{
+	// TODO: 在此添加消息处理程序代码和/或调用默认值
+	beginPoint = point;
+	if (OperType == 3)
+	{//保留椭圆中的内容
+		Graphics graphics(m_hWnd);
+		Region region(Rect(rect.left, rect.top, rect.right, rect.bottom));
+		PointF backPoint((float)point.x, (float)point.y);
+		if (region.IsVisible(backPoint, &graphics))
+		{
+			bSelectedImage = TRUE;
+			forePoint.x = point.x;
+			forePoint.y = point.y;
+		}
+	}
+	CView::OnLButtonDown(nFlags, point);
+}
+
+
+void CGDISampleView::OnLButtonUp(UINT nFlags, CPoint point)
+{
+	// TODO: 在此添加消息处理程序代码和/或调用默认值
+	endPoint = point;
+	if (OperType == 1)
+	{//保留椭圆中的内容
+		Graphics graphics(m_hWnd);
+		graphics.Clear(Color::White);
+		GraphicsPath path;
+		path.AddEllipse(beginPoint.x, beginPoint.y,
+			(endPoint.x - beginPoint.x), (endPoint.y - endPoint.y));
+		Region region(&path);
+		Pen pen(Color(255, 0, 255));
+		graphics.DrawPath(&pen, &path);
+		graphics.SetClip(&region);
+		Image image(L"girl.jpg");
+		UINT width = image.GetWidth();
+		UINT height = image.GetHeight();
+		graphics.DrawImage(&image, 0, 0, width, height);
+		OperType = 0;
+	}
+	else if (OperType == 2)
+	{//去除椭圆中的内容
+		Graphics graphics(m_hWnd);
+		graphics.Clear(Color::White);
+
+		CRect rect;
+		GetClientRect(&rect);
+		Region region1(Rect(rect.left, rect.top, rect.right, rect.bottom));
+
+		GraphicsPath path;
+		path.AddEllipse(beginPoint.x, beginPoint.y,
+			(endPoint.x - beginPoint.x), (endPoint.y - beginPoint.y));
+		Region region2(&path);
+
+		region1.Exclude(&region2);
+		Pen pen(Color(255, 0, 0, 255));
+		graphics.DrawPath(&pen, &path);
+		graphics.SetClip(&region1);
+		Image image(L"girl.jpg");
+		UINT width = image.GetWidth();
+		UINT height = image.GetHeight();
+		graphics.DrawImage(&image, 0, 0, width, height);
+		OperType = 0;
+	}
+	else if (OperType == 3)
+	{//拖动图片
+		if (bSelectedImage)
+		{
+			bSelectedImage = FALSE;
+			Graphics graphics(m_hWnd);
+			graphics.Clear(Color::White);
+			Image image(L"girl.jpg");
+			UINT width = image.GetWidth();
+			UINT height = image.GetHeight();
+			int offX = point.x - forePoint.x;
+			int offY = point.y - forePoint.y;
+			rect.left += offX;
+			rect.top += offY;
+			graphics.DrawImage(&image, rect.left, rect.top, width, height);
+		}
+	}
+	CView::OnLButtonUp(nFlags, point);
+}
+
+
+void CGDISampleView::OnMouseMove(UINT nFlags, CPoint point)
+{
+	// TODO: 在此添加消息处理程序代码和/或调用默认值
+
+	CView::OnMouseMove(nFlags, point);
+}
+
+
+void CGDISampleView::OnPaint()
+{
+	CPaintDC dc(this); // device context for painting
+					   // TODO: 在此处添加消息处理程序代码
+					   // 不为绘图消息调用 CView::OnPaint()
+}
+
+
+void CGDISampleView::OnMenuitemDrag()
+{
+	// TODO: 在此添加命令处理程序代码
+	OperType = 3;
+	Graphics graphics(m_hWnd);
+	graphics.Clear(Color::White);
+	graphics.SetSmoothingMode(SmoothingModeAntiAlias);
+	Bitmap image(L"girl.jpg");
+	UINT width = image.GetWidth();
+	UINT height = image.GetHeight();
+	graphics.DrawImage(&image, 10, 10, width, height);
+	rect.left = 10;
+	rect.top = 10;
+	rect.right = width + 10;
+	rect.bottom = height + 10;
 }

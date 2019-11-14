@@ -16,7 +16,12 @@ public:
 
 // 操作
 public:
-
+	CPoint beginPoint;
+	CPoint endPoint;
+	int OperType;//1--保留椭圆中内容
+	CRect rect;
+	CPoint forePoint;
+	BOOL bSelectedImage;
 // 重写
 public:
 	virtual void OnDraw(CDC* pDC);  // 重写以绘制该视图
@@ -77,6 +82,13 @@ public:
 	afx_msg void OnMenuitemVbaiye();
 	afx_msg void OnMenuitemDrawlineOnImage();
 	afx_msg void OnMenuitemDrawnetlineontimg();
+	afx_msg void OnMenuitemOpenhighimg();
+	//鼠标事件
+	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
+	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
+	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
+	afx_msg void OnPaint();
+	afx_msg void OnMenuitemDrag();
 };
 
 #ifndef _DEBUG  // GDISampleView.cpp 中的调试版本
