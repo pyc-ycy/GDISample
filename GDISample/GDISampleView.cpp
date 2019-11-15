@@ -80,6 +80,8 @@ BEGIN_MESSAGE_MAP(CGDISampleView, CView)
 	ON_COMMAND(ID_MENUITEM_SCREENCUT, &CGDISampleView::OnMenuitemScreencut)
 	ON_COMMAND(ID_MENUITEM_GETRGB, &CGDISampleView::OnMenuitemGetrgb)
 	ON_COMMAND(ID_MENUITEM_SHIMAGE, &CGDISampleView::OnMenuitemShimage)
+	ON_COMMAND(ID_MENUITEM_SAVEELLIPSEPCONTENT, &CGDISampleView::OnMenuitemSaveellipsepcontent)
+	ON_COMMAND(ID_MENUITEM_CUTELLIPCONTENT, &CGDISampleView::OnMenuitemCutellipcontent)
 END_MESSAGE_MAP()
 
 // CGDISampleView 构造/析构
@@ -1268,15 +1270,15 @@ void CGDISampleView::OnLButtonUp(UINT nFlags, CPoint point)
 		graphics.Clear(Color::White);
 		GraphicsPath path;
 		path.AddEllipse(beginPoint.x, beginPoint.y,
-			(endPoint.x - beginPoint.x), (endPoint.y - endPoint.y));
+			(endPoint.x - beginPoint.x), (endPoint.y - beginPoint.y));
 		Region region(&path);
-		Pen pen(Color(255, 0, 255));
+		Pen pen(Color(255, 0, 0,255));
 		graphics.DrawPath(&pen, &path);
 		graphics.SetClip(&region);
-		Image image(L"girl.jpg");
+		Image image(L"baby1.jpg");
 		UINT width = image.GetWidth();
 		UINT height = image.GetHeight();
-		graphics.DrawImage(&image, 0, 0, width, height);
+		graphics.DrawImage(&image, 10, 10, width, height);
 		OperType = 0;
 	}
 	else if (OperType == 2)
@@ -1443,4 +1445,28 @@ void CGDISampleView::OnMenuitemShimage()
 	DWORD dwThreadID; //定义线程 ID
 	hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)ThreadShimageFunc,
 		(LPVOID)m_hWnd, 0, &dwThreadID);//创建渐隐渐显图像线程
+}
+
+
+void CGDISampleView::OnMenuitemSaveellipsepcontent()
+{
+	// TODO: 在此添加命令处理程序代码
+	Graphics graphics(m_hWnd);
+	Image image(L"baby1.jpg");
+	UINT width = image.GetWidth();
+	UINT height = image.GetHeight();
+	graphics.DrawImage(&image, 10, 10, width, height);
+	OperType = 1;
+}
+
+
+void CGDISampleView::OnMenuitemCutellipcontent()
+{
+	// TODO: 在此添加命令处理程序代码
+	Graphics graphics(m_hWnd);
+	Image image(L"girl.jpg");
+	UINT width = image.GetWidth();
+	UINT height = image.GetHeight();
+	graphics.DrawImage(&image, 0, 0, width, height);
+	OperType = 2;
 }

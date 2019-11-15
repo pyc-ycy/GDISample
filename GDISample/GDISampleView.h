@@ -93,6 +93,8 @@ public:
 	afx_msg void OnMenuitemScreencut();
 	afx_msg void OnMenuitemGetrgb();
 	afx_msg void OnMenuitemShimage();
+	afx_msg void OnMenuitemSaveellipsepcontent();
+	afx_msg void OnMenuitemCutellipcontent();
 };
 
 #ifndef _DEBUG  // GDISampleView.cpp 中的调试版本
