@@ -77,6 +77,9 @@ BEGIN_MESSAGE_MAP(CGDISampleView, CView)
 	ON_WM_MOUSEMOVE()
 	ON_WM_PAINT()
 	ON_COMMAND(ID_MENUITEM_DRAG, &CGDISampleView::OnMenuitemDrag)
+	ON_COMMAND(ID_MENUITEM_SCREENCUT, &CGDISampleView::OnMenuitemScreencut)
+	ON_COMMAND(ID_MENUITEM_GETRGB, &CGDISampleView::OnMenuitemGetrgb)
+	ON_COMMAND(ID_MENUITEM_SHIMAGE, &CGDISampleView::OnMenuitemShimage)
 END_MESSAGE_MAP()
 
 // CGDISampleView 构造/析构
@@ -1352,4 +1355,92 @@ void CGDISampleView::OnMenuitemDrag()
 	rect.top = 10;
 	rect.right = width + 10;
 	rect.bottom = height + 10;
+}
+
+
+void CGDISampleView::OnMenuitemScreencut()
+{
+	// TODO: 在此添加命令处理程序代码
+	int cx = GetSystemMetrics(SM_CXSCREEN);
+	int cy = GetSystemMetrics(SM_CYSCREEN);
+	HDC hSrcDC = CreateDC(L"DISPLAY", NULL, NULL, NULL);
+	// 创建显示器设备上下文
+	Graphics graphics1(hSrcDC);
+	Bitmap bitmap(cx, cy, &graphics1);
+	Graphics graphics2(&bitmap);
+	HDC dc1 = graphics1.GetHDC();
+	HDC dc2 = graphics2.GetHDC();
+	BitBlt(dc2, 0, 0, cx, cy, dc1, 0, 0, 13369376);
+	graphics1.ReleaseHDC(dc1);
+	graphics2.ReleaseHDC(dc2);
+	Graphics graphics(m_hWnd);
+	UINT width = bitmap.GetWidth();
+	UINT height = bitmap.GetHeight();
+	// 将屏幕截图绘制在位图上
+	graphics.DrawImage(&bitmap, 0, 0, width, height);
+}
+
+
+
+void CGDISampleView::OnMenuitemGetrgb()
+{
+	// TODO: 在此添加命令处理程序代码
+	Graphics graphics(m_hWnd);
+	Bitmap image(L"girl.jpg");
+	UINT width = image.GetWidth();
+	UINT height = image.GetHeight();
+	graphics.DrawImage(&image, 10, 30, width, height);
+	Color color;
+	image.GetPixel(width / 2, height / 2, &color);
+	CString log;
+	log.Format(L"图像中心点的颜色值为：Alpha=%d;Red=%d,Green=%d,Blue=%d", 
+		color.GetAlpha(), color.GetRed(), color.GetGreen(), color.GetBlue());
+	//格式化颜色信息
+	CDC* pDC = GetDC();
+	pDC->TextOut(0, 0, log);
+}
+
+//渐隐渐显图像
+DWORD WINAPI ThreadShimageFunc(LPVOID lpParam)	//线程处理函数
+{
+	Graphics graphics((HWND)lpParam);
+	graphics.SetSmoothingMode(SmoothingModeAntiAlias);
+	Bitmap image(L"yn.jpg");
+	UINT width = image.GetWidth();
+	UINT height = image.GetHeight();
+	TextureBrush brush(&image);
+	graphics.FillRectangle(&brush, Rect(0, 0, width, height));
+	// 使用图像画刷填充矩形
+	for (int i = 0; i < 255; i++)
+	{
+		SolidBrush solieBrush(Color(i, 0xA9, 0xA9, 0xA9));
+		//设置更不透明画刷
+		graphics.FillRectangle(&solieBrush, Rect(0, 0, width, height));
+		Sleep(100);
+	}
+	graphics.Clear(Color::White);
+	for (int i = 0; i < 255; i++)
+	{
+		Color color, colorTemp;
+		for (INT iRow = 0; iRow < (INT)height; iRow++)
+		{
+			for (INT iColumn = 0; iColumn < (INT)width; iColumn++)
+			{
+				image.GetPixel(iColumn, iRow, &color);
+				colorTemp.SetValue(color.MakeARGB(i, color.GetRed(), color.GetGreen(), color.GetBlue()));
+				image.SetPixel(iColumn, iRow, colorTemp);
+			}
+		}
+		graphics.DrawImage(&image, 0, 0, width, height);
+		Sleep(100);
+	}
+	return 0;
+}
+
+void CGDISampleView::OnMenuitemShimage()
+{
+	// TODO: 在此添加命令处理程序代码
+	DWORD dwThreadID; //定义线程 ID
+	hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)ThreadShimageFunc,
+		(LPVOID)m_hWnd, 0, &dwThreadID);//创建渐隐渐显图像线程
 }

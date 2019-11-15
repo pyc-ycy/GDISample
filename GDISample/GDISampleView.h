@@ -22,6 +22,7 @@ public:
 	CRect rect;
 	CPoint forePoint;
 	BOOL bSelectedImage;
+	HANDLE hThread;
 // 重写
 public:
 	virtual void OnDraw(CDC* pDC);  // 重写以绘制该视图
@@ -89,6 +90,9 @@ public:
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
 	afx_msg void OnPaint();
 	afx_msg void OnMenuitemDrag();
+	afx_msg void OnMenuitemScreencut();
+	afx_msg void OnMenuitemGetrgb();
+	afx_msg void OnMenuitemShimage();
 };
 
 #ifndef _DEBUG  // GDISampleView.cpp 中的调试版本
